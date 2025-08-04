@@ -53,23 +53,23 @@ actual_points = 460  # set to the real total when known
 # Eagles in-season performance (W for win; L for loss; A for not played yet)
 
 eagles_results = [
-    'W', # 0 Packers
-    'L', # 1 Falcons
-    'W', # 2 Saints
-    'L', # 3 Bucs
-    'W', # 4 Browns
-    'W', # 5 Giants
-    'W', # 6 Bengals
-    'W', # 7 Jags
-    'W', # 8 Cowboys
-    'W', # 9 Comms
-    'W', # 10 Rams
-    'W', # 11 Ravens
-    'W', # 12 Panthers
-    'W', # 13 Steelers
-    'L', # 14 Comms
-    'W', # 15 Cowboys
-    'W'  # 16 Giants
+    'A', # 1 Cowboys
+    'A', # 2 Chiefs
+    'A', # 3 Rams
+    'A', # 4 Bucs
+    'A', # 5 Broncos
+    'A', # 6 Giants
+    'A', # 7 Vikings
+    'A', # 8 Giants
+    'A', # 10 Packers
+    'A', # 11 Lions
+    'A', # 12 Cowboys
+    'A', # 13 Bears
+    'A', # 14 Chargers
+    'A', # 15 Raiders
+    'A', # 16 Comms
+    'A', # 17 Bills
+    'A'  # 18 Comms
 ]
 
 # Number of games in this season (auto-adjusts for mini-season testing)
@@ -79,23 +79,23 @@ total_weeks = len(eagles_results)
 
 tally_total = {'amir':0, 'andy':0, 'buhduh':0, 'emer':0, 'hanan':0, 'jacob':0, 'jay':0, 'jen':0, 'marsha':0, 'nathan':0, 'pop':0, 'sarah':0}
 weight = {
-    0:  .500, # Packers
-    1:  .626, # Falcons
-    2:  .487, # Saints
-    3:  .610, # Bucs
-    4:  .671, # Browns
-    5:  .641, # Giants
-    6:  .499, # Bengals
-    7:  .685, # Jags
-    8:  .597, # Cowboys
-    9:  .584, # Comms
-    10: .587, # Rams
-    11: .413, # Ravens
-    12: .851, # Panthers
-    13: .610, # Steelers
-    14: .577, # Comms
-    15: .768, # Cowboys
-    16: .834  # Giants
+    0:  .500, # 1 Cowboys
+    1:  .626, # 2 Chiefs
+    2:  .487, # 3 Rams
+    3:  .610, # 4 Bucs
+    4:  .671, # 5 Broncos
+    5:  .641, # 6 Giants
+    6:  .499, # 7 Vikings
+    7:  .685, # 8 Giants
+    8:  .597, # 10 Packers
+    9:  .584, # 11 Lions
+    10: .587, # 12 Cowboys
+    11: .413, # 13 Bears
+    12: .851, # 14 Chargers
+    13: .610, # 15 Raiders
+    14: .577, # 16 Comms
+    15: .768, # 17 Bills
+    16: .834  # 18 Comms
     }
 
 # Tally competitors' points
@@ -155,7 +155,6 @@ for outcome in outcomes:
     if len(tied_names) == 1:
         tally_total[tied_names[0]] += chance * 100
     elif len(tied_names) > 1:
-        print(f"[Weighted Tie] Tied on correct picks: {tied_names}")
         actual_wins = outcome.count('W') + week_number_wins
         closest_diff = min(abs(predicted_wins[name] - actual_wins) for name in tied_names)
         winners = [name for name in tied_names if abs(predicted_wins[name] - actual_wins) == closest_diff]
@@ -227,7 +226,6 @@ for outcome in outcomes:
     if len(tied_names) == 1:
         tally_total[tied_names[0]] += 1
     elif len(tied_names) > 1:
-        print(f"[Straight Tie] Tied on correct picks: {tied_names}")
         actual_wins = outcome.count('W') + week_number_wins
         closest_diff = min(abs(predicted_wins[name] - actual_wins) for name in tied_names)
         winners = [name for name in tied_names if abs(predicted_wins[name] - actual_wins) == closest_diff]
