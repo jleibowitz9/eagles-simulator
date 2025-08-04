@@ -26,18 +26,25 @@ st.markdown(
     div[role="option"]:hover {
         background-color: #2f3237 !important;
     }
-    /* Keep select & input side-by-side on mobile, allow horizontal scroll */
-    @media (max-width: 600px) {
-      /* Target the column group wrapper in Streamlit */
-      div[data-testid="column-group"] {
-        flex-direction: row !important;
+    /* Force columns to stay side-by-side, even on narrow screens */
+    .stColumns {
+        display: flex !important;
+        flex-wrap: nowrap !important;
         overflow-x: auto !important;
-      }
-      /* Ensure each column stays its natural width and doesn't wrap */
-      div[data-testid="column-group"] > div {
+    }
+    /* Ensure each column keeps its width */
+    .stColumns > div {
         flex: 0 0 auto !important;
         width: auto !important;
-      }
+    }
+    /* Decrease horizontal gap between dropdown and input */
+    div[data-testid="column"] {
+        gap: 0.5rem !important;
+    }
+
+    /* Increase vertical spacing between each week row */
+    div[data-testid="column"] + div[data-testid="column"] {
+        margin-top: 1.5rem !important;
     }
     </style>
     """,
