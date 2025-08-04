@@ -282,3 +282,108 @@ print(copy_straight)
 print('')
 print('----------')
 print('')
+
+
+# --- BEGIN: Simulation API function ---
+def run_simulation(eagles_results_input, weight_input):
+    import itertools
+
+    # Use passed-in results and weights
+    eagles_results = eagles_results_input
+    weight = weight_input
+
+    # Reuse picks and tiebreaker logic
+    picks_dict = {
+        'amir':   ['W','W','W','W','L','W','L','W','L','W','L','L','W','W','W','L','W'],
+        'andy':   ['L','W','L','W','L','W','L','W','L','W','W','L','W','W','L','W','W'],
+        'buhduh': ['L','W','W','W','W','W','L','W','W','W','W','L','W','W','L','L','W'],
+        'emer':   ['W','W','W','L','L','W','L','W','L','W','W','L','W','W','W','W','W'],
+        'hanan':  ['W','W','L','W','W','W','L','W','L','W','L','L','W','W','W','W','W'],
+        'jacob':  ['L','W','W','W','W','W','L','W','W','W','L','W','W','L','W','L','W'],
+        'jay':    ['W','W','W','W','L','W','W','W','L','W','W','L','W','W','W','W','W'],
+        'jen':    ['W','W','L','W','L','W','L','W','L','W','W','L','W','L','W','W','W'],
+        'marsha': ['L','W','W','W','L','W','L','L','W','W','L','L','W','W','W','W','W'],
+        'nathan': ['L','W','W','W','W','W','W','L','L','W','W','L','W','W','W','W','W'],
+        'pop':    ['W','L','W','W','W','W','L','L','L','W','W','L','W','L','W','L','W'],
+        'sarah':  ['W','W','L','W','W','W','L','W','W','W','L','L','W','W','W','L','W'],
+    }
+
+    predicted_wins = {name: picks.count('W') for name, picks in picks_dict.items()}
+    division_weeks = [5, 8, 9, 14, 15, 16]
+    predicted_division_wins = {
+        name: sum(1 for i in division_weeks if picks[i] == 'W')
+        for name, picks in picks_dict.items()
+    }
+    predicted_points = {name: 450 for name in picks_dict}
+    actual_points = 460
+
+    total_weeks = len(eagles_results)
+    current_points = {name: 0 for name in picks_dict}
+    for name, picks in picks_dict.items():
+        for week in range(total_weeks):
+            if picks[week] == eagles_results[week]:
+                current_points[name] += 1
+
+    week_number = sum(1 for r in eagles_results if r != 'A')
+    week_range = total_weeks - week_number
+    outcomes = [list(i) for i in itertools.product(['W','L'], repeat=week_range)]
+    week_number_wins = sum(1 for result in eagles_results[:week_number] if result == 'W')
+
+    def outcome_chance_weighted(outcome):
+        chance = 1
+        for i in range(week_number, total_weeks):
+            if outcome[i - week_number] == 'W':
+                chance *= weight[i]
+            else:
+                chance *= (1 - weight[i])
+        return chance
+
+    weighted_tally = {name: 0 for name in picks_dict}
+    straight_tally = {name: 0 for name in picks_dict}
+
+    for outcome in outcomes:
+        chance = outcome_chance_weighted(outcome)
+        # simulate weighted and straight for each outcome
+        def simulate(is_weighted):
+            tally = {name: current_points[name] for name in picks_dict}
+            for name, predictions in picks_dict.items():
+                for week in range(week_number, total_weeks):
+                    if predictions[week] == outcome[week - week_number]:
+                        tally[name] += 1
+            max_score = max(tally.values())
+            tied = [name for name, score in tally.items() if score == max_score]
+            if len(tied) == 1:
+                if is_weighted:
+                    weighted_tally[tied[0]] += chance * 100
+                else:
+                    straight_tally[tied[0]] += 1
+            else:
+                actual_wins = outcome.count('W') + week_number_wins
+                # first tiebreaker
+                diff = min(abs(predicted_wins[name] - actual_wins) for name in tied)
+                winners = [name for name in tied if abs(predicted_wins[name] - actual_wins) == diff]
+                # division tiebreaker
+                if len(winners) > 1:
+                    actual_div_wins = sum(
+                        (eagles_results[i] == 'W') if i < week_number else (outcome[i-week_number] == 'W')
+                        for i in division_weeks
+                    )
+                    div_diff = min(abs(predicted_division_wins[name] - actual_div_wins) for name in winners)
+                    winners = [name for name in winners if abs(predicted_division_wins[name] - actual_div_wins) == div_diff]
+                # final points tiebreaker
+                if len(winners) > 1:
+                    point_diff = min(abs(predicted_points[name] - actual_points) for name in winners)
+                    winners = [name for name in winners if abs(predicted_points[name] - actual_points) == point_diff]
+                for w in winners:
+                    if is_weighted:
+                        weighted_tally[w] += chance * 100 / len(winners)
+                    else:
+                        straight_tally[w] += 1 / len(winners)
+        simulate(True)
+        simulate(False)
+
+    weighted_list = [round(weighted_tally[name],1) for name in picks_dict]
+    straight_list = [round((straight_tally[name]/len(outcomes))*100,1) for name in picks_dict]
+
+    return {"weighted": weighted_list, "straight": straight_list}
+# --- END: Simulation API function ---
