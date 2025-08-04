@@ -1,35 +1,102 @@
 from simulator import run_simulation
+from simulator import eagles_results as CORE_RESULTS
 import streamlit as st
+
+st.markdown(
+    """
+    <style>
+    div.block-container {
+      max-width: 400px;
+      margin: auto;
+      padding: 1rem;
+    }
+    /* Lighten dropdown menu panels */
+    .baseweb-popover-content, 
+    div[data-baseweb="select"] ul {
+      background-color: #25282c !important;
+    }
+    /* Force dropdown panel background */
+    div[role="listbox"] {
+        background-color: #25282c !important;
+    }
+    /* Force dropdown options background and hover */
+    div[role="option"] {
+        background-color: #25282c !important;
+    }
+    div[role="option"]:hover {
+        background-color: #2f3237 !important;
+    }
+    </style>
+    """,
+    unsafe_allow_html=True
+)
 
 st.set_page_config(page_title="Eagles Season Simulator", layout="wide")
 st.title("🦅 Eagles Season Simulator")
 
+
 NUM_WEEKS = 17
 
-st.markdown("### 📅 Game Outcomes")
-eagles_results = []
-cols = st.columns(NUM_WEEKS)
-for i in range(NUM_WEEKS):
-    result = cols[i].selectbox(
-        f"Week {i+1}",
-        ["", "W", "L"],
-        index=0,
-        key=f"result-{i}"
-    )
-    eagles_results.append(result if result else "A")
+# List of participants matching the order in simulator.py
+PARTICIPANTS = [
+    'amir', 'andy', 'buhduh', 'emer', 'hanan',
+    'jacob', 'jay', 'jen', 'marsha', 'nathan',
+    'pop', 'sarah'
+]
 
-# Default win probabilities (you can allow users to customize this too)
-weight = {
-    0:  .500, 1:  .626, 2:  .487, 3:  .610, 4:  .671, 5:  .641,
-    6:  .499, 7:  .685, 8:  .597, 9:  .584, 10: .587, 11: .413,
-    12: .851, 13: .610, 14: .577, 15: .768, 16: .834
-}
+# List of opponents for each week
+OPPONENTS = [
+    "vs. Cowboys", "@ Chiefs", "vs. Rams", "@ Buccaneers", "vs. Broncos",
+    "@ Giants", "@ Vikings", "vs. Giants", "@ Packers", "vs. Lions",
+    "@ Cowboys", "vs. Bears", "@ Chargers", "vs. Raiders", "@ Commanders",
+    "@ Bills", "vs. Commanders"
+]
+
+st.markdown("### 📅 Game Outcomes & Odds")
+
+eagles_results = []
+odds = []
+for i in range(NUM_WEEKS):
+    col1, col2 = st.columns([3, 1])
+    with col1:
+        # Backend “actual” result for this week
+        actual = CORE_RESULTS[i]
+        locked = actual in ("W", "L")
+        # Determine initial dropdown value
+        default = actual if locked else "?"
+        result = st.selectbox(
+            f"Week {i+1} {OPPONENTS[i]}",
+            ["?", "W", "L"],
+            index=["?", "W", "L"].index(default),
+            key=f"result-{i}",
+            disabled=locked
+        )
+    with col2:
+        if locked:
+            locked_val = 100.0 if actual == "W" else 0.0
+            st.number_input(
+                "", min_value=0.0, max_value=100.0,
+                value=locked_val, disabled=True,
+                key=f"locked-prob-{i}"
+            )
+        else:
+            prob = st.number_input(
+                "", min_value=0.0, max_value=100.0,
+                value=50.0, key=f"prob-{i}"
+            )
+
+    eagles_results.append(actual if locked else (result if result != "?" else "A"))
+    odds.append((locked_val if locked else prob) / 100)
 
 if st.button("Run Simulation"):
     with st.spinner("Simulating..."):
-        results = run_simulation(eagles_results, weight)
+        weight_dict = {i: odds[i] for i in range(NUM_WEEKS)}
+        results = run_simulation(eagles_results, weight_dict)
         st.success("Simulation complete!")
         st.markdown("### 🧮 Weighted Probabilities")
-        st.write(results["weighted"])
+        # Map results back to participant names
+        weighted_dict = {PARTICIPANTS[i]: results["weighted"][i] for i in range(len(PARTICIPANTS))}
+        straight_dict = {PARTICIPANTS[i]: results["straight"][i] for i in range(len(PARTICIPANTS))}
+        st.write(weighted_dict)
         st.markdown("### 📊 Straight Probabilities")
-        st.write(results["straight"])
+        st.write(straight_dict)
