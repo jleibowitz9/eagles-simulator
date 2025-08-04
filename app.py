@@ -1,12 +1,12 @@
+from simulator import run_simulation
 import streamlit as st
-from simulator import run_simulation  # <- your existing algorithm logic
 
 st.set_page_config(page_title="Eagles Season Simulator", layout="wide")
 st.title("🦅 Eagles Season Simulator")
 
 NUM_WEEKS = 17
 
-st.markdown("### 🗓️ Game Outcomes")
+st.markdown("### 📅 Game Outcomes")
 eagles_results = []
 cols = st.columns(NUM_WEEKS)
 for i in range(NUM_WEEKS):
@@ -16,32 +16,20 @@ for i in range(NUM_WEEKS):
         index=0,
         key=f"result-{i}"
     )
-    eagles_results.append(result if result else "A")  # Use 'A' as your "not yet played" flag
+    eagles_results.append(result if result else "A")
 
-st.markdown("---")
-
-st.markdown("### 📊 ESPN Win Probabilities")
-weight = []
-cols = st.columns(NUM_WEEKS)
-for i in range(NUM_WEEKS):
-    prob = cols[i].slider(
-        f"Week {i+1}", 0.0, 1.0, 0.5, step=0.01,
-        key=f"prob-{i}"
-    )
-    weight.append(prob)
-
-st.markdown("---")
+# Default win probabilities (you can allow users to customize this too)
+weight = {
+    0:  .500, 1:  .626, 2:  .487, 3:  .610, 4:  .671, 5:  .641,
+    6:  .499, 7:  .685, 8:  .597, 9:  .584, 10: .587, 11: .413,
+    12: .851, 13: .610, 14: .577, 15: .768, 16: .834
+}
 
 if st.button("Run Simulation"):
-    st.write("🔄 Running...")
-    results = run_simulation(eagles_results, weight)
-
-    st.markdown("### ✅ Weighted Results")
-    # Static list of participant names in same order as simulator
-    names = ['amir', 'andy', 'buhduh', 'emer', 'hanan', 'jacob', 'jay', 'jen', 'marsha', 'nathan', 'pop', 'sarah']
-    weighted_data = {name: [val] for name, val in zip(names, results["weighted"])}
-    st.bar_chart(weighted_data)
-
-    st.markdown("### 🧮 Straight Results")
-    straight_data = {f"Player {i+1}": [val] for i, val in enumerate(results["straight"])}
-    st.bar_chart(straight_data)
+    with st.spinner("Simulating..."):
+        results = run_simulation(eagles_results, weight)
+        st.success("Simulation complete!")
+        st.markdown("### 🧮 Weighted Probabilities")
+        st.write(results["weighted"])
+        st.markdown("### 📊 Straight Probabilities")
+        st.write(results["straight"])
