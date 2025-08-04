@@ -92,21 +92,34 @@ for i in range(NUM_WEEKS):
             disabled=locked
         )
     with col2:
-        if locked:
-            locked_val = 100.0 if actual == "W" else 0.0
+        # Frontend lock when user picks a result
+        frontend_locked = (result != "?")
+        if locked or frontend_locked:
+            # Either backend or user locked: show 100% for W, 0% for L
+            display_val = 100.0 if result == "W" else 0.0
             st.number_input(
-                "", min_value=0.0, max_value=100.0,
-                value=locked_val, disabled=True,
+                "",
+                min_value=0.0,
+                max_value=100.0,
+                value=display_val,
+                disabled=True,
                 key=f"locked-prob-{i}"
             )
         else:
+            # Editable when undecided by both backend and user
             prob = st.number_input(
-                "", min_value=0.0, max_value=100.0,
-                value=50.0, key=f"prob-{i}"
+                "",
+                min_value=0.0,
+                max_value=100.0,
+                value=50.0,
+                key=f"prob-{i}"
             )
 
     eagles_results.append(actual if locked else (result if result != "?" else "A"))
-    odds.append((locked_val if locked else prob) / 100)
+    if locked or result != "?":
+        odds.append(display_val / 100)
+    else:
+        odds.append(prob / 100)
 
 if st.button("Run Simulation"):
     with st.spinner("Simulating..."):
