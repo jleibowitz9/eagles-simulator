@@ -26,6 +26,19 @@ st.markdown(
     div[role="option"]:hover {
         background-color: #2f3237 !important;
     }
+    /* Keep select & input side-by-side on mobile, allow horizontal scroll */
+    @media (max-width: 600px) {
+      /* Target the column group wrapper in Streamlit */
+      div[data-testid="column-group"] {
+        flex-direction: row !important;
+        overflow-x: auto !important;
+      }
+      /* Ensure each column stays its natural width and doesn't wrap */
+      div[data-testid="column-group"] > div {
+        flex: 0 0 auto !important;
+        width: auto !important;
+      }
+    }
     </style>
     """,
     unsafe_allow_html=True
