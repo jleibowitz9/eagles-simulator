@@ -79,7 +79,7 @@ total_weeks = len(eagles_results)
 
 tally_total = {'amir':0, 'andy':0, 'buhduh':0, 'emer':0, 'hanan':0, 'jacob':0, 'jay':0, 'jen':0, 'marsha':0, 'nathan':0, 'pop':0, 'sarah':0}
 weight = {
-    0:  .500, # 1 Cowboys
+    0:  .700, # 1 Cowboys
     1:  .626, # 2 Chiefs
     2:  .487, # 3 Rams
     3:  .610, # 4 Bucs
