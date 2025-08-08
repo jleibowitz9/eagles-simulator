@@ -87,7 +87,7 @@ for i in range(NUM_WEEKS):
         # Determine initial dropdown value
         default = actual if locked else "Undecided"
         result = st.selectbox(
-            f"Week {i+1} {OPPONENTS[i]} — {default_prob_pct}%",
+            f"Week {i+1} {OPPONENTS[i]} (ESPN Predictor: {default_prob_pct}% chance for an Eagles win)",
             ["Undecided", "W", "L"],
             index=["Undecided", "W", "L"].index(default),
             key=f"result-{i}",
