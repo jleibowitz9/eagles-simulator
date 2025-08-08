@@ -78,13 +78,13 @@ st.markdown("### 📅 Game Outcomes & Odds")
 eagles_results = []
 odds = []
 for i in range(NUM_WEEKS):
-    default_prob_pct = round(DEFAULT_WEIGHT.get(i, 0.5) * 100.0, 1)
+    default_prob_pct = int(round(DEFAULT_WEIGHT.get(i, 0.5) * 100.0))
 
     prob_key = f"prob-{i}"
     reset_flag_key = f"prob-reset-{i}"
     # If a reset was requested in the previous interaction, apply it now before creating the widget
     if st.session_state.get(reset_flag_key):
-        st.session_state[prob_key] = default_prob_pct
+        st.session_state[prob_key] = int(default_prob_pct)
         st.session_state[reset_flag_key] = False
 
     col1, col2 = st.columns([3, 1])
@@ -110,9 +110,11 @@ for i in range(NUM_WEEKS):
             with sub1:
                 st.number_input(
                     "",
-                    min_value=0.0,
-                    max_value=100.0,
-                    value=display_val,
+                    min_value=0,
+                    max_value=100,
+                    value=int(display_val),
+                    step=1,
+                    format="%d",
                     disabled=True,
                     key=f"locked-prob-{i}"
                 )
@@ -125,9 +127,11 @@ for i in range(NUM_WEEKS):
                 current_val = st.session_state.get(prob_key, default_prob_pct)
                 st.number_input(
                     "",
-                    min_value=0.0,
-                    max_value=100.0,
-                    value=current_val,
+                    min_value=0,
+                    max_value=100,
+                    value=int(current_val),
+                    step=1,
+                    format="%d",
                     key=prob_key
                 )
             with sub2:
@@ -135,7 +139,7 @@ for i in range(NUM_WEEKS):
                 current_val = st.session_state.get(prob_key, default_prob_pct)
                 if current_val != default_prob_pct:
                     # Small top padding to visually center-align the button with the input
-                    st.markdown("<div style='padding-top:6px'></div>", unsafe_allow_html=True)
+                    st.markdown("<div style='padding-top:14px'></div>", unsafe_allow_html=True)
                     if st.button("↺", help=f"Reset to default ({default_prob_pct}%)", key=f"reset-{i}"):
                         st.session_state[reset_flag_key] = True
                         st.rerun()
