@@ -87,7 +87,7 @@ for i in range(NUM_WEEKS):
         # Determine initial dropdown value
         default = actual if locked else "Undecided"
         result = st.selectbox(
-            f"Week {i+1} {OPPONENTS[i]} (ESPN Predictor: {default_prob_pct}% chance for an Eagles win)",
+            f"Week {i+1} {OPPONENTS[i]}",
             ["Undecided", "W", "L"],
             index=["Undecided", "W", "L"].index(default),
             key=f"result-{i}",
@@ -98,25 +98,36 @@ for i in range(NUM_WEEKS):
         frontend_locked = (result != "Undecided")
         if locked or frontend_locked:
             display_val = 100.0 if result == "W" else 0.0
-            st.number_input(
-                "",
-                min_value=0.0,
-                max_value=100.0,
-                value=display_val,
-                disabled=True,
-                key=f"locked-prob-{i}"
-            )
+            # Show locked number and a disabled reset icon
+            sub1, sub2 = st.columns([4, 1])
+            with sub1:
+                st.number_input(
+                    "",
+                    min_value=0.0,
+                    max_value=100.0,
+                    value=display_val,
+                    disabled=True,
+                    key=f"locked-prob-{i}"
+                )
+            with sub2:
+                st.button("↺", help="Reset to default", disabled=True, key=f"reset-{i}")
             current_prob = display_val / 100.0
         else:
-            # Default editable probability comes from simulator.py's weight dict
-            prob = st.number_input(
-                "",
-                min_value=0.0,
-                max_value=100.0,
-                value=default_prob_pct,
-                key=f"prob-{i}"
-            )
-            current_prob = prob / 100.0
+            # Editable when undecided by both backend and user
+            sub1, sub2 = st.columns([4, 1])
+            with sub1:
+                prob = st.number_input(
+                    "",
+                    min_value=0.0,
+                    max_value=100.0,
+                    value=default_prob_pct,
+                    key=f"prob-{i}"
+                )
+            with sub2:
+                if st.button("↺", help=f"Reset to ESPN default ({default_prob_pct}%)", key=f"reset-{i}"):
+                    st.session_state[f"prob-{i}"] = default_prob_pct
+            # Re-read the current value (may have been reset by the button)
+            current_prob = st.session_state.get(f"prob-{i}", default_prob_pct) / 100.0
 
     eagles_results.append(actual if locked else (result if result != "Undecided" else "A"))
     odds.append(current_prob)
