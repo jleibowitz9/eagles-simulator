@@ -79,6 +79,14 @@ eagles_results = []
 odds = []
 for i in range(NUM_WEEKS):
     default_prob_pct = round(DEFAULT_WEIGHT.get(i, 0.5) * 100.0, 1)
+
+    prob_key = f"prob-{i}"
+    reset_flag_key = f"prob-reset-{i}"
+    # If a reset was requested in the previous interaction, apply it now before creating the widget
+    if st.session_state.get(reset_flag_key):
+        st.session_state[prob_key] = default_prob_pct
+        st.session_state[reset_flag_key] = False
+
     col1, col2 = st.columns([3, 1])
     with col1:
         # Backend “actual” result for this week
@@ -98,8 +106,7 @@ for i in range(NUM_WEEKS):
         frontend_locked = (result != "Undecided")
         if locked or frontend_locked:
             display_val = 100.0 if result == "W" else 0.0
-            # Show locked number and a disabled reset icon
-            sub1, sub2 = st.columns([4, 1])
+            sub1, sub2 = st.columns([4, 1], gap="small")
             with sub1:
                 st.number_input(
                     "",
@@ -109,25 +116,30 @@ for i in range(NUM_WEEKS):
                     disabled=True,
                     key=f"locked-prob-{i}"
                 )
-            with sub2:
-                st.button("↺", help="Reset to default", disabled=True, key=f"reset-{i}")
+            # Do not show reset button in locked state
             current_prob = display_val / 100.0
         else:
             # Editable when undecided by both backend and user
-            sub1, sub2 = st.columns([4, 1])
+            sub1, sub2 = st.columns([4, 1], gap="small")
             with sub1:
-                prob = st.number_input(
+                current_val = st.session_state.get(prob_key, default_prob_pct)
+                st.number_input(
                     "",
                     min_value=0.0,
                     max_value=100.0,
-                    value=default_prob_pct,
-                    key=f"prob-{i}"
+                    value=current_val,
+                    key=prob_key
                 )
             with sub2:
-                if st.button("↺", help=f"Reset to ESPN default ({default_prob_pct}%)", key=f"reset-{i}"):
-                    st.session_state[f"prob-{i}"] = default_prob_pct
-            # Re-read the current value (may have been reset by the button)
-            current_prob = st.session_state.get(f"prob-{i}", default_prob_pct) / 100.0
+                # Only show reset if user has overridden the default value
+                current_val = st.session_state.get(prob_key, default_prob_pct)
+                if current_val != default_prob_pct:
+                    # Small top padding to visually center-align the button with the input
+                    st.markdown("<div style='padding-top:6px'></div>", unsafe_allow_html=True)
+                    if st.button("↺", help=f"Reset to default ({default_prob_pct}%)", key=f"reset-{i}"):
+                        st.session_state[reset_flag_key] = True
+                        st.rerun()
+            current_prob = st.session_state.get(prob_key, default_prob_pct) / 100.0
 
     eagles_results.append(actual if locked else (result if result != "Undecided" else "A"))
     odds.append(current_prob)
