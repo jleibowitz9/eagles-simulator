@@ -1,0 +1,19 @@
+{
+  "name": "outcome-row",
+  "version": "0.0.1",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "esbuild index.tsx --bundle --outfile=build/index.js --loader:.ts=ts --loader:.tsx=tsx --define:process.env.NODE_ENV=\\\"production\\\"",
+    "dev": "esbuild index.tsx --bundle --outfile=build/index.js --loader:.ts=ts --loader:.tsx=tsx --watch"
+  },
+  "dependencies": {
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "streamlit-component-lib": "^2.0.0"
+  },
+  "devDependencies": {
+    "esbuild": "^0.25.8",
+    "typescript": "^5.5.4"
+  }
+}
