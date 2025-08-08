@@ -106,7 +106,7 @@ for i in range(NUM_WEEKS):
         frontend_locked = (result != "Undecided")
         if locked or frontend_locked:
             display_val = 100.0 if result == "W" else 0.0
-            sub1, sub2 = st.columns([4, 1], gap="small")
+            sub1, sub2, sub3 = st.columns([4, 0.6, 0.8], gap="small")
             with sub1:
                 st.number_input(
                     "",
@@ -118,11 +118,14 @@ for i in range(NUM_WEEKS):
                     disabled=True,
                     key=f"locked-prob-{i}"
                 )
-            # Do not show reset button in locked state
+            with sub2:
+                # Center the percent symbol vertically next to the input
+                st.markdown("<div style='padding-top:14px; text-align:center;'>%</div>", unsafe_allow_html=True)
+            # No reset button in locked state
             current_prob = display_val / 100.0
         else:
             # Editable when undecided by both backend and user
-            sub1, sub2 = st.columns([4, 1], gap="small")
+            sub1, sub2, sub3 = st.columns([4, 0.6, 0.8], gap="small")
             with sub1:
                 current_val = st.session_state.get(prob_key, default_prob_pct)
                 st.number_input(
@@ -135,11 +138,13 @@ for i in range(NUM_WEEKS):
                     key=prob_key
                 )
             with sub2:
+                st.markdown("<div style='padding-top:14px; text-align:center;'>%</div>", unsafe_allow_html=True)
+            with sub3:
                 # Only show reset if user has overridden the default value
                 current_val = st.session_state.get(prob_key, default_prob_pct)
                 if current_val != default_prob_pct:
                     # Small top padding to visually center-align the button with the input
-                    st.markdown("<div style='padding-top:14px'></div>", unsafe_allow_html=True)
+                    st.markdown("<div style='padding-top:10px'></div>", unsafe_allow_html=True)
                     if st.button("↺", help=f"Reset to default ({default_prob_pct}%)", key=f"reset-{i}"):
                         st.session_state[reset_flag_key] = True
                         st.rerun()
