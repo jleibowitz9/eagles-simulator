@@ -1,5 +1,6 @@
 from simulator import run_simulation
 from simulator import eagles_results as CORE_RESULTS
+from simulator import weight as DEFAULT_WEIGHT
 import streamlit as st
 
 st.markdown(
@@ -77,25 +78,25 @@ st.markdown("### 📅 Game Outcomes & Odds")
 eagles_results = []
 odds = []
 for i in range(NUM_WEEKS):
+    default_prob_pct = round(DEFAULT_WEIGHT.get(i, 0.5) * 100.0, 1)
     col1, col2 = st.columns([3, 1])
     with col1:
         # Backend “actual” result for this week
         actual = CORE_RESULTS[i]
         locked = actual in ("W", "L")
         # Determine initial dropdown value
-        default = actual if locked else "?"
+        default = actual if locked else "Undecided"
         result = st.selectbox(
-            f"Week {i+1} {OPPONENTS[i]}",
-            ["?", "W", "L"],
-            index=["?", "W", "L"].index(default),
+            f"Week {i+1} {OPPONENTS[i]} — {default_prob_pct}%",
+            ["Undecided", "W", "L"],
+            index=["Undecided", "W", "L"].index(default),
             key=f"result-{i}",
             disabled=locked
         )
     with col2:
-        # Frontend lock when user picks a result
-        frontend_locked = (result != "?")
+        # If backend has an actual result or the user picked W/L, lock field and set 100/0
+        frontend_locked = (result != "Undecided")
         if locked or frontend_locked:
-            # Either backend or user locked: show 100% for W, 0% for L
             display_val = 100.0 if result == "W" else 0.0
             st.number_input(
                 "",
@@ -105,21 +106,20 @@ for i in range(NUM_WEEKS):
                 disabled=True,
                 key=f"locked-prob-{i}"
             )
+            current_prob = display_val / 100.0
         else:
-            # Editable when undecided by both backend and user
+            # Default editable probability comes from simulator.py's weight dict
             prob = st.number_input(
                 "",
                 min_value=0.0,
                 max_value=100.0,
-                value=50.0,
+                value=default_prob_pct,
                 key=f"prob-{i}"
             )
+            current_prob = prob / 100.0
 
-    eagles_results.append(actual if locked else (result if result != "?" else "A"))
-    if locked or result != "?":
-        odds.append(display_val / 100)
-    else:
-        odds.append(prob / 100)
+    eagles_results.append(actual if locked else (result if result != "Undecided" else "A"))
+    odds.append(current_prob)
 
 if st.button("Run Simulation"):
     with st.spinner("Simulating..."):
