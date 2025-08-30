@@ -1,7 +1,7 @@
 import streamlit as st
 
 # Import the simulation API and the live core data from simulator.py
-from simulator import run_simulation, eagles_results as CORE_RESULTS, weight as CORE_WEIGHT
+from simulator import run_simulation, eagles_results as CORE_RESULTS, weight as CORE_WEIGHT, picks_dict
 
 st.set_page_config(page_title="Eagles Season Simulator", layout="wide")
 st.title("🦅 Eagles Season Simulator")
@@ -74,19 +74,13 @@ if run:
         st.markdown("---")
         st.header("📊 Weighted Win Chances")
 
-        # Display as two columns: name and percentages
-        names = list(CORE_WEIGHT.keys())  # indices, but we want participant names below
-        # We don't have names here; the simulation returns lists aligned with picks_dict order.
-        # So create a stable display using the order of those lists.
+        # Display as two columns: competitor name and percentages
+        names = list(picks_dict.keys())
         weighted = out["weighted"]
         straight = out["straight"]
-
-        # Build a small table with indexes as placeholders for names
-        # The true participant order comes from simulator.picks_dict keys, but we didn't import it
-        # to keep the UI light. We'll show #1..N rows.
         rows = []
-        for idx, (w, s) in enumerate(zip(weighted, straight), start=1):
-            rows.append({"#": idx, "Weighted %": w, "Straight %": s})
+        for name, w, s in zip(names, weighted, straight):
+            rows.append({"Competitor": name, "Weighted %": w, "Straight %": s})
         st.dataframe(rows, hide_index=True, use_container_width=True)
     except Exception as e:
         st.error(f"Simulation error: {e}")
