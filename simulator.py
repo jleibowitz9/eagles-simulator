@@ -292,27 +292,41 @@ def run_simulation(eagles_results_input, weight_input):
 
     # Reuse picks and tiebreaker logic
     picks_dict = {
-        'amir':   ['W','W','W','W','L','W','L','W','L','W','L','L','W','W','W','L','W'],
-        'andy':   ['L','W','L','W','L','W','L','W','L','W','W','L','W','W','L','W','W'],
-        'buhduh': ['L','W','W','W','W','W','L','W','W','W','W','L','W','W','L','L','W'],
-        'emer':   ['W','W','W','L','L','W','L','W','L','W','W','L','W','W','W','W','W'],
-        'hanan':  ['W','W','L','W','W','W','L','W','L','W','L','L','W','W','W','W','W'],
-        'jacob':  ['L','W','W','W','W','W','L','W','W','W','L','W','W','L','W','L','W'],
-        'jay':    ['W','W','W','W','L','W','W','W','L','W','W','L','W','W','W','W','W'],
-        'jen':    ['W','W','L','W','L','W','L','W','L','W','W','L','W','L','W','W','W'],
-        'marsha': ['L','W','W','W','L','W','L','L','W','W','L','L','W','W','W','W','W'],
-        'nathan': ['L','W','W','W','W','W','W','L','L','W','W','L','W','W','W','W','W'],
-        'pop':    ['W','L','W','W','W','W','L','L','L','W','W','L','W','L','W','L','W'],
-        'sarah':  ['W','W','L','W','W','W','L','W','W','W','L','L','W','W','W','L','W'],
+        'amir':     ['W',	'W',	'W',	'W',	'W',	'W',	'W',	'W',	'W',    'L',	'W',	'W',	'L',	'W',	'L',	'L',	'W'],
+        'andy':     ['W',	'L',	'W',	'L',	'W',	'W',	'L',	'W',	'L',	'W',	'W',	'W',	'W',	'W',	'L',	'L',	'W'],
+        'buhduh':   ['W',	'W',	'L',	'L',	'W',	'W',	'W',	'L',	'W',	'W',	'L',	'W',	'W',	'W',	'W',	'L',	'L'],
+        'emer':     ['W',	'L',	'W',	'W',	'W',	'W',	'W',	'W',	'W',	'W',	'L',    'W',	'W',	'L',	'W',	'L',	'W'],
+        'hanan':    ['W',	'L',	'W',	'L',	'W',	'W',	'W',	'W',	'W',    'L',	'W',	'W',	'W',	'W',	'L',	'W',	'W'],
+        'jacob':    ['W',	'W',	'L',	'W',	'W',	'W',	'L',	'W',	'L',	'W',	'W',	'W',	'W',	'W',	'L',	'W',	'W'],
+        'jay':      ['W',   'W',    'W',    'W',	'W',	'W',	'W',	'W',	'W',	'L',	'W',	'W',	'W',	'W',	'L',	'W',	'W'],
+        'jen':      ['W',	'L',	'W',	'W',	'W',	'W',	'W',	'W',	'W',	'L',	'W',	'W',	'L',	'W',	'W',	'L',	'W'],
+        'marsha':   ['W',	'L',	'W',	'W',	'W',	'L',	'W',	'W',	'L',	'W',	'L',	'W',	'W',	'W',	'W',	'L',	'W'],
+        'nathan':   ['W',	'L',	'W',	'W',	'W',	'W',    'W',	'W',	'W',	'L',	'L',	'W',    'L',	'W',	'L',	'L',	'W'],
+        'pop':      ['W',	'W',	'W',	'W',	'W',	'W',	'W',	'W',	'W',	'W',	'W',	'W',	'W',	'W',	'W',	'W',	'W'],
+        'sarah':    ['W',	'W',	'W',	'W',	'W',	'W',	'L',	'W',	'L',	'L',	'W',	'W',	'W',	'W',	'L',	'W',	'W']
     }
 
     predicted_wins = {name: picks.count('W') for name, picks in picks_dict.items()}
-    division_weeks = [5, 8, 9, 14, 15, 16]
+    division_weeks = [0, 5, 7, 10, 14, 16]
     predicted_division_wins = {
         name: sum(1 for i in division_weeks if picks[i] == 'W')
         for name, picks in picks_dict.items()
     }
-    predicted_points = {name: 450 for name in picks_dict}
+    predicted_points = {
+    'amir': 470,
+    'andy':   418,
+    'buhduh': 357,
+    'emer': 455,
+    'hanan': 450,
+    'jacob': 422,
+    'jay': 486,
+    'jen': 455,
+    'marsha': 476,
+    'nathan': 433,
+    'pop': 340,
+    'sarah': 432,
+}
+    
     actual_points = 460
 
     total_weeks = len(eagles_results)
