@@ -3,6 +3,30 @@ import streamlit as st
 # Import the simulation API and the live core data from simulator.py
 from simulator import run_simulation, eagles_results as CORE_RESULTS, weight as CORE_WEIGHT, picks_dict
 
+# Try to get opponent labels from simulator.py; fall back to a hard‑coded list
+try:
+    from simulator import OPPONENTS as CORE_OPPONENTS  # expects a list of strings like "vs. Cowboys" or "@ Chiefs"
+except Exception:
+    CORE_OPPONENTS = [
+        "vs. Cowboys",    # 1
+        "@ Chiefs",       # 2
+        "vs. Rams",       # 3
+        "@ Buccaneers",   # 4
+        "vs. Broncos",    # 5
+        "@ Giants",       # 6
+        "vs. Vikings",    # 7
+        "vs. Giants",     # 8
+        "@ Packers",      # 10
+        "vs. Lions",      # 11
+        "@ Cowboys",      # 12
+        "@ Bears",        # 13
+        "vs. Chargers",   # 14
+        "vs. Raiders",    # 15
+        "vs. Commanders", # 16
+        "@ Bills",        # 17
+        "vs. Commanders", # 18
+    ]
+
 st.set_page_config(page_title="Eagles Season Simulator", layout="wide")
 st.title("🦅 Eagles Season Simulator")
 
@@ -32,8 +56,11 @@ for i in range(NUM_WEEKS):
     c1, c2 = st.columns([4, 1])
 
     with c1:
+        # Compose a friendlier label that includes the opponent when available
+        opp = CORE_OPPONENTS[i] if i < len(CORE_OPPONENTS) else ""
+        label = f"Week {i+1} — {opp}" if opp else f"Week {i+1}"
         st.session_state.ui_results[i] = st.selectbox(
-            f"Week {i+1}",
+            label,
             options=["TBD", "W", "L"],
             index=["TBD", "W", "L"].index(st.session_state.ui_results[i]),
             key=f"result_{i}",
