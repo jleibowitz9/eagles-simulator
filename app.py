@@ -1,92 +1,94 @@
-# simulator.py
+import streamlit as st
 
-# --- BEGIN: Simulation API function ---
-def run_simulation(eagles_results_input, weight_input):
-    import itertools
+# Import the simulation API and the live core data from simulator.py
+from simulator import run_simulation, eagles_results as CORE_RESULTS, weight as CORE_WEIGHT
 
-    # Use the values passed in from the UI
-    eagles_results = eagles_results_input
-    weight = weight_input
+st.set_page_config(page_title="Eagles Season Simulator", layout="wide")
+st.title("🦅 Eagles Season Simulator")
 
-    # Reuse module-level data so VS Code prints and the app match
-    global picks_dict, division_weeks, predicted_points, actual_points
+NUM_WEEKS = len(CORE_RESULTS)
 
-    total_weeks = len(eagles_results)
+# Session state for UI values (results & probabilities in 0–100 range)
+if "ui_results" not in st.session_state:
+    st.session_state.ui_results = [
+        ("TBD" if r == "A" else r) for r in CORE_RESULTS
+    ]
+if "ui_probs" not in st.session_state:
+    # CORE_WEIGHT is a dict {week_index: probability as 0–1}
+    st.session_state.ui_probs = [round(CORE_WEIGHT[i] * 100) for i in range(NUM_WEEKS)]
 
-    # Current points from games already decided in eagles_results
-    current_points = {name: 0 for name in picks_dict}
-    for name, picks in picks_dict.items():
-        for week in range(total_weeks):
-            if picks[week] == eagles_results[week]:
-                current_points[name] += 1
+st.subheader("📅 Game Outcomes & Odds")
 
-    week_number = sum(1 for r in eagles_results if r != 'A')
-    week_range = total_weeks - week_number
-    outcomes = [list(x) for x in itertools.product(['W', 'L'], repeat=week_range)]
-    week_number_wins = sum(1 for r in eagles_results[:week_number] if r == 'W')
+# Build the inputs for each week
+for i in range(NUM_WEEKS):
+    locked_actual = CORE_RESULTS[i] in ("W", "L")  # lock when season result is known
 
-    def outcome_chance_weighted(outcome):
-        chance = 1.0
-        for i in range(week_number, total_weeks):
-            p = weight[i]
-            chance *= (p if outcome[i - week_number] == 'W' else (1 - p))
-        return chance
+    # If locked by actual result, force the UI values accordingly
+    if locked_actual:
+        st.session_state.ui_results[i] = CORE_RESULTS[i]
+        st.session_state.ui_probs[i] = 100 if CORE_RESULTS[i] == "W" else 0
 
-    # Tiebreaker expectations (from the same data as your VS Code run)
-    predicted_wins = {name: picks.count('W') for name, picks in picks_dict.items()}
-    predicted_division_wins = {
-        name: sum(1 for i in division_weeks if picks_dict[name][i] == 'W')
-        for name in picks_dict
-    }
+    # One row per week
+    c1, c2 = st.columns([4, 1])
 
-    weighted_tally = {name: 0.0 for name in picks_dict}
-    straight_tally = {name: 0.0 for name in picks_dict}
+    with c1:
+        st.session_state.ui_results[i] = st.selectbox(
+            f"Week {i+1}",
+            options=["TBD", "W", "L"],
+            index=["TBD", "W", "L"].index(st.session_state.ui_results[i]),
+            key=f"result_{i}",
+            disabled=locked_actual,
+        )
 
-    for outcome in outcomes:
-        chance = outcome_chance_weighted(outcome)
+    with c2:
+        # If the user selects W/L, force probability to 100/0 and disable the input
+        sel = st.session_state.ui_results[i]
+        if sel == "W":
+            st.session_state.ui_probs[i] = 100
+        elif sel == "L":
+            st.session_state.ui_probs[i] = 0
 
-        # Score each participant for this outcome
-        tally = {name: current_points[name] for name in picks_dict}
-        for name, predictions in picks_dict.items():
-            for week in range(week_number, total_weeks):
-                if predictions[week] == outcome[week - week_number]:
-                    tally[name] += 1
+        st.number_input(
+            label=" ",
+            min_value=0,
+            max_value=100,
+            step=1,
+            value=int(st.session_state.ui_probs[i]),
+            key=f"prob_{i}",
+            disabled=locked_actual or sel in ("W", "L"),
+            help="Eagles % chance to win this game",
+        )
 
-        max_score = max(tally.values())
-        tied = [n for n, sc in tally.items() if sc == max_score]
+# Prepare inputs for the simulator
+ui_results_final = [
+    ("A" if r == "TBD" else r) for r in st.session_state.ui_results
+]
+ui_weight_final = {i: st.session_state.ui_probs[i] / 100 for i in range(NUM_WEEKS)}
 
-        if len(tied) == 1:
-            weighted_tally[tied[0]] += chance * 100.0
-            straight_tally[tied[0]] += 1.0
-            continue
+# Run button
+run = st.button("Run Simulation")
 
-        # 1) final record tiebreaker
-        actual_wins = outcome.count('W') + week_number_wins
-        best_diff = min(abs(predicted_wins[n] - actual_wins) for n in tied)
-        winners = [n for n in tied if abs(predicted_wins[n] - actual_wins) == best_diff]
+if run:
+    try:
+        out = run_simulation(ui_results_final, ui_weight_final)
+        st.markdown("---")
+        st.header("📊 Weighted Win Chances")
 
-        # 2) division record tiebreaker
-        if len(winners) > 1:
-            actual_div_wins = sum(
-                (eagles_results[i] == 'W') if i < week_number else (outcome[i - week_number] == 'W')
-                for i in division_weeks
-            )
-            best_div_diff = min(abs(predicted_division_wins[n] - actual_div_wins) for n in winners)
-            winners = [n for n in winners if abs(predicted_division_wins[n] - actual_div_wins) == best_div_diff]
+        # Display as two columns: name and percentages
+        names = list(CORE_WEIGHT.keys())  # indices, but we want participant names below
+        # We don't have names here; the simulation returns lists aligned with picks_dict order.
+        # So create a stable display using the order of those lists.
+        weighted = out["weighted"]
+        straight = out["straight"]
 
-        # 3) points tiebreaker
-        if len(winners) > 1:
-            best_pts_diff = min(abs(predicted_points[n] - actual_points) for n in winners)
-            winners = [n for n in winners if abs(predicted_points[n] - actual_points) == best_pts_diff]
+        # Build a small table with indexes as placeholders for names
+        # The true participant order comes from simulator.picks_dict keys, but we didn't import it
+        # to keep the UI light. We'll show #1..N rows.
+        rows = []
+        for idx, (w, s) in enumerate(zip(weighted, straight), start=1):
+            rows.append({"#": idx, "Weighted %": w, "Straight %": s})
+        st.dataframe(rows, hide_index=True, use_container_width=True)
+    except Exception as e:
+        st.error(f"Simulation error: {e}")
 
-        share = 1.0 / len(winners)
-        for w in winners:
-            weighted_tally[w] += chance * 100.0 * share
-            straight_tally[w] += share
-
-    # Convert tallies to percentage lists in name-order
-    names_in_order = list(picks_dict.keys())
-    weighted_list = [round(weighted_tally[n], 1) for n in names_in_order]
-    straight_list = [round((straight_tally[n] / len(outcomes)) * 100.0, 1) for n in names_in_order]
-    return {"weighted": weighted_list, "straight": straight_list}
-# --- END: Simulation API function ---
+st.caption("Tip: Weeks with a finalized result in simulator.py are locked in this UI.")
