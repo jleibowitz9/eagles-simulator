@@ -99,7 +99,7 @@ if run:
     try:
         out = run_simulation(ui_results_final, ui_weight_final)
         st.markdown("---")
-        st.header("📊 Weighted Win Chances")
+        st.header("📊 Competitor Win Chances")
 
         # Display as two columns: competitor name and percentages
         names = list(picks_dict.keys())
@@ -112,4 +112,4 @@ if run:
     except Exception as e:
         st.error(f"Simulation error: {e}")
 
-st.caption("Tip: Weeks with a finalized result in simulator.py are locked in this UI.")
+st.caption("Tip: Weeks with a finalized result are locked in this UI.")
