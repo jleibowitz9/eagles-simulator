@@ -5,25 +5,25 @@ import itertools
 # Participant picks
 
 picks_dict = {
-'amir':     ['W',	'W',	'W',	'W',	'L',	'W',	'L',	'W',	'L',    'W',	'L',	'L',	'W',	'W',	'W',	'L',	'W'],
-'andy':     ['L',	'W',	'L',	'W',	'L',	'W',	'L',	'W',	'L',	'W',	'W',	'L',	'W',	'W',	'L',	'W',	'W'],
-'buhduh':   ['L',	'W',	'W',	'W',	'W',	'W',	'L',	'W',	'W',	'W',	'W',	'L',	'W',	'W',	'L',	'L',	'W'],
-'emer':     ['W',	'W',	'W',	'L',	'L',	'W',	'L',	'W',	'L',	'W',	'W',    'L',	'W',	'W',	'W',	'W',	'W'],
-'hanan':    ['W',	'W',	'L',	'W',	'W',	'W',	'L',	'W',	'L',    'W',	'L',	'L',	'W',	'W',	'W',	'W',	'W'],
-'jacob':    ['L',	'W',	'W',	'W',	'W',	'W',	'L',	'W',	'W',	'W',	'L',	'W',	'W',	'L',	'W',	'L',	'W'],
-'jay':      ['W',   'W',    'W',    'W',	'L',	'W',	'W',	'W',	'L',	'W',	'W',	'L',	'W',	'W',	'W',	'W',	'W'],
-'jen':      ['W',	'W',	'L',	'W',	'L',	'W',	'L',	'W',	'L',	'W',	'W',	'L',	'W',	'L',	'W',	'W',	'W'],
-'marsha':   ['L',	'W',	'W',	'W',	'L',	'W',	'L',	'L',	'W',	'W',	'L',	'L',	'W',	'W',	'W',	'W',	'W'],
-'nathan':   ['L',	'W',	'W',	'W',	'W',	'W',    'W',	'L',	'L',	'W',	'W',	'L',    'W',	'W',	'W',	'W',	'W'],
-'pop':      ['W',	'L',	'W',	'W',	'W',	'W',	'L',	'L',	'L',	'W',	'W',	'L',	'W',	'L',	'W',	'L',	'W'],
-'sarah':    ['W',	'W',	'L',	'W',	'W',	'W',	'L',	'W',	'W',	'W',	'L',	'L',	'W',	'W',	'W',	'L',	'W']
+'amir':     ['W',	'W',	'W',	'W',	'W',	'W',	'W',	'W',	'W',    'L',	'W',	'W',	'L',	'W',	'L',	'L',	'W'],
+'andy':     ['W',	'L',	'W',	'L',	'W',	'W',	'L',	'W',	'L',	'W',	'W',	'W',	'W',	'W',	'L',	'L',	'W'],
+'buhduh':   ['W',	'W',	'L',	'L',	'W',	'W',	'W',	'L',	'W',	'W',	'L',	'W',	'W',	'W',	'W',	'L',	'L'],
+'emer':     ['W',	'L',	'W',	'W',	'W',	'W',	'W',	'W',	'W',	'W',	'L',    'W',	'W',	'L',	'W',	'L',	'W'],
+'hanan':    ['W',	'L',	'W',	'L',	'W',	'W',	'W',	'W',	'W',    'L',	'W',	'W',	'W',	'W',	'L',	'W',	'W'],
+'jacob':    ['W',	'W',	'L',	'W',	'W',	'W',	'L',	'W',	'L',	'W',	'W',	'W',	'W',	'W',	'L',	'W',	'W'],
+'jay':      ['W',   'W',    'W',    'W',	'W',	'W',	'W',	'W',	'W',	'L',	'W',	'W',	'W',	'W',	'L',	'W',	'W'],
+'jen':      ['W',	'L',	'W',	'W',	'W',	'W',	'W',	'W',	'W',	'L',	'W',	'W',	'L',	'W',	'W',	'L',	'W'],
+'marsha':   ['W',	'L',	'W',	'W',	'W',	'L',	'W',	'W',	'L',	'W',	'L',	'W',	'W',	'W',	'W',	'L',	'W'],
+'nathan':   ['W',	'L',	'W',	'W',	'W',	'W',    'W',	'W',	'W',	'L',	'L',	'W',    'L',	'W',	'L',	'L',	'W'],
+'pop':      ['W',	'W',	'W',	'W',	'W',	'W',	'W',	'W',	'W',	'W',	'W',	'W',	'W',	'W',	'W',	'W',	'W'],
+'sarah':    ['W',	'W',	'W',	'W',	'W',	'W',	'L',	'W',	'L',	'L',	'W',	'W',	'W',	'W',	'L',	'W',	'W']
 }
 
 # Pre-calculate predicted final record for tiebreaker
 predicted_wins = {name: picks.count('W') for name, picks in picks_dict.items()}
 
 # Indices (0-based) of intra-division games vs. Cowboys, Commanders, Giants (6 total); adjust as needed
-division_weeks = [5, 8, 9, 14, 15, 16]
+division_weeks = [0, 5, 7, 10, 14, 16]
 
 # Pre-calculate predicted division record for second tiebreaker
 predicted_division_wins = {
@@ -33,18 +33,18 @@ predicted_division_wins = {
 
 # Pre-calculate predicted total points guess for final tiebreaker
 predicted_points = {
-    'amir': 450,
-    'andy':   460,
-    'buhduh': 440,
-    'emer': 400,
-    'hanan': 400,
-    'jacob': 400,
-    'jay': 400,
-    'jen': 400,
-    'marsha': 400,
-    'nathan': 400,
-    'pop': 400,
-    'sarah': 400,
+    'amir': 470,
+    'andy':   418,
+    'buhduh': 357,
+    'emer': 455,
+    'hanan': 450,
+    'jacob': 422,
+    'jay': 486,
+    'jen': 455,
+    'marsha': 476,
+    'nathan': 433,
+    'pop': 340,
+    'sarah': 432,
 }
 
 # Actual total points scored by the Eagles at season end
@@ -79,23 +79,23 @@ total_weeks = len(eagles_results)
 
 tally_total = {'amir':0, 'andy':0, 'buhduh':0, 'emer':0, 'hanan':0, 'jacob':0, 'jay':0, 'jen':0, 'marsha':0, 'nathan':0, 'pop':0, 'sarah':0}
 weight = {
-    0:  .700, # 1 Cowboys
-    1:  .626, # 2 Chiefs
-    2:  .487, # 3 Rams
-    3:  .610, # 4 Bucs
-    4:  .671, # 5 Broncos
+    0:  .687, # 1 Cowboys
+    1:  .476, # 2 Chiefs
+    2:  .626, # 3 Rams
+    3:  .590, # 4 Bucs
+    4:  .641, # 5 Broncos
     5:  .641, # 6 Giants
-    6:  .499, # 7 Vikings
-    7:  .685, # 8 Giants
-    8:  .597, # 10 Packers
-    9:  .584, # 11 Lions
-    10: .587, # 12 Cowboys
-    11: .413, # 13 Bears
-    12: .851, # 14 Chargers
-    13: .610, # 15 Raiders
-    14: .577, # 16 Comms
-    15: .768, # 17 Bills
-    16: .834  # 18 Comms
+    6:  .575, # 7 Vikings
+    7:  .741, # 8 Giants
+    8:  .529, # 10 Packers
+    9:  .554, # 11 Lions
+    10: .671, # 12 Cowboys
+    11: .656, # 13 Bears
+    12: .544, # 14 Chargers
+    13: .711, # 15 Raiders
+    14: .532, # 16 Comms
+    15: .500, # 17 Bills
+    16: .611  # 18 Comms
     }
 
 # Tally competitors' points
