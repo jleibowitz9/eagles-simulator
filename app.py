@@ -1,7 +1,7 @@
 import streamlit as st
 
 # Import the simulation API and the live core data from simulator.py
-from simulator import run_simulation, eagles_results as CORE_RESULTS, weight as CORE_WEIGHT, picks_dict
+from simulator import (run_simulation, eagles_results as CORE_RESULTS, weight as CORE_WEIGHT, picks_dict, division_weeks as CORE_DIV_WEEKS, predicted_points as CORE_POINTS_GUESS, actual_points as CORE_ACTUAL_POINTS)
 
 # Try to get opponent labels from simulator.py; fall back to a hard‑coded list
 try:
@@ -97,7 +97,14 @@ run = st.button("Run Simulation")
 
 if run:
     try:
-        out = run_simulation(ui_results_final, ui_weight_final)
+        out = run_simulation(
+            eagles_results_input=ui_results_final,
+            weight_input=ui_weight_final,
+            picks_dict_input=picks_dict,
+            division_weeks_input=CORE_DIV_WEEKS,
+            predicted_points_input=CORE_POINTS_GUESS,
+            actual_points_input=CORE_ACTUAL_POINTS,
+        )
         st.markdown("---")
         st.header("📊 Competitor Win Chances")
 
@@ -112,4 +119,4 @@ if run:
     except Exception as e:
         st.error(f"Simulation error: {e}")
 
-st.caption("Tip: Weeks with a finalized result are locked in this UI.")
+st.caption("Note: Weeks with a finalized result are locked in this UI.")
