@@ -48,12 +48,12 @@ predicted_points = {
 }
 
 # Actual total points scored by the Eagles at season end
-actual_points = 460  # set to the real total when known
+actual_points = (24) / 1 * 17  # set to the real total when known
 
 # Eagles in-season performance (W for win; L for loss; A for not played yet)
 
 eagles_results = [
-    'A', # 1 Cowboys
+    'W', # 1 Cowboys
     'A', # 2 Chiefs
     'A', # 3 Rams
     'A', # 4 Bucs
@@ -283,28 +283,12 @@ print('')
 
 
 # --- BEGIN: Simulation API function ---
-def run_simulation(eagles_results_input, weight_input):
+def run_simulation(eagles_results_input, weight_input, picks_dict, division_weeks, predicted_points, actual_points):
     import itertools
 
     # Use passed-in results and weights
     eagles_results = eagles_results_input
     weight = weight_input
-
-    # Reuse picks and tiebreaker logic
-    picks_dict = {
-        'amir':     ['W',	'W',	'W',	'W',	'W',	'W',	'W',	'W',	'W',    'L',	'W',	'W',	'L',	'W',	'L',	'L',	'W'],
-        'andy':     ['W',	'L',	'W',	'L',	'W',	'W',	'L',	'W',	'L',	'W',	'W',	'W',	'W',	'W',	'L',	'L',	'W'],
-        'buhduh':   ['W',	'W',	'L',	'L',	'W',	'W',	'W',	'L',	'W',	'W',	'L',	'W',	'W',	'W',	'W',	'L',	'L'],
-        'emer':     ['W',	'L',	'W',	'W',	'W',	'W',	'W',	'W',	'W',	'W',	'L',    'W',	'W',	'L',	'W',	'L',	'W'],
-        'hanan':    ['W',	'L',	'W',	'L',	'W',	'W',	'W',	'W',	'W',    'L',	'W',	'W',	'W',	'W',	'L',	'W',	'W'],
-        'jacob':    ['W',	'W',	'L',	'W',	'W',	'W',	'L',	'W',	'L',	'W',	'W',	'W',	'W',	'W',	'L',	'W',	'W'],
-        'jay':      ['W',   'W',    'W',    'W',	'W',	'W',	'W',	'W',	'W',	'L',	'W',	'W',	'W',	'W',	'L',	'W',	'W'],
-        'jen':      ['W',	'L',	'W',	'W',	'W',	'W',	'W',	'W',	'W',	'L',	'W',	'W',	'L',	'W',	'W',	'L',	'W'],
-        'marsha':   ['W',	'L',	'W',	'W',	'W',	'L',	'W',	'W',	'L',	'W',	'L',	'W',	'W',	'W',	'W',	'L',	'W'],
-        'nathan':   ['W',	'L',	'W',	'W',	'W',	'W',    'W',	'W',	'W',	'L',	'L',	'W',    'L',	'W',	'L',	'L',	'W'],
-        'pop':      ['W',	'W',	'W',	'W',	'W',	'W',	'W',	'W',	'W',	'W',	'W',	'W',	'W',	'W',	'W',	'W',	'W'],
-        'sarah':    ['W',	'W',	'W',	'W',	'W',	'W',	'L',	'W',	'L',	'L',	'W',	'W',	'W',	'W',	'L',	'W',	'W']
-    }
 
     predicted_wins = {name: picks.count('W') for name, picks in picks_dict.items()}
     division_weeks = [0, 5, 7, 10, 14, 16]
@@ -312,22 +296,6 @@ def run_simulation(eagles_results_input, weight_input):
         name: sum(1 for i in division_weeks if picks[i] == 'W')
         for name, picks in picks_dict.items()
     }
-    predicted_points = {
-    'amir': 470,
-    'andy':   418,
-    'buhduh': 357,
-    'emer': 455,
-    'hanan': 450,
-    'jacob': 422,
-    'jay': 486,
-    'jen': 455,
-    'marsha': 476,
-    'nathan': 433,
-    'pop': 340,
-    'sarah': 432,
-}
-    
-    actual_points = 460
 
     total_weeks = len(eagles_results)
     current_points = {name: 0 for name in picks_dict}
