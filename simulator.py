@@ -283,15 +283,19 @@ print('')
 
 
 # --- BEGIN: Simulation API function ---
-def run_simulation(eagles_results_input, weight_input, picks_dict, division_weeks, predicted_points, actual_points):
+def run_simulation(eagles_results_input, weight_input, picks_dict_input, division_weeks_input, predicted_points_input, actual_points_input):
     import itertools
 
     # Use passed-in results and weights
+    
     eagles_results = eagles_results_input
     weight = weight_input
+    picks_dict = picks_dict_input
+    division_weeks = division_weeks_input
+    predicted_points = predicted_points_input
+    actual_points = actual_points_input
 
     predicted_wins = {name: picks.count('W') for name, picks in picks_dict.items()}
-    division_weeks = [0, 5, 7, 10, 14, 16]
     predicted_division_wins = {
         name: sum(1 for i in division_weeks if picks[i] == 'W')
         for name, picks in picks_dict.items()
