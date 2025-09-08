@@ -48,7 +48,7 @@ predicted_points = {
 }
 
 # Actual total points scored by the Eagles at season end
-actual_points = (24) / 1 * 17  # set to the real total when known
+actual_points = (24) / 1 * 17 # ⭐️⭐️⭐️⭐️⭐️⭐️⭐️
 
 # Eagles in-season performance (W for win; L for loss; A for not played yet)
 
@@ -70,7 +70,7 @@ eagles_results = [
     'A', # 16 Comms
     'A', # 17 Bills
     'A'  # 18 Comms
-]
+] # ⭐️⭐️⭐️⭐️⭐️⭐️⭐️
 
 # Number of games in this season (auto-adjusts for mini-season testing)
 total_weeks = len(eagles_results)
@@ -78,25 +78,26 @@ total_weeks = len(eagles_results)
 # Create points tally
 
 tally_total = {'amir':0, 'andy':0, 'buhduh':0, 'emer':0, 'hanan':0, 'jacob':0, 'jay':0, 'jen':0, 'marsha':0, 'nathan':0, 'pop':0, 'sarah':0}
+
 weight = {
     0:  .687, # 1 Cowboys
-    1:  .476, # 2 Chiefs
-    2:  .626, # 3 Rams
-    3:  .590, # 4 Bucs
-    4:  .641, # 5 Broncos
-    5:  .641, # 6 Giants
-    6:  .575, # 7 Vikings
-    7:  .741, # 8 Giants
-    8:  .529, # 10 Packers
-    9:  .554, # 11 Lions
-    10: .671, # 12 Cowboys
-    11: .656, # 13 Bears
-    12: .544, # 14 Chargers
-    13: .711, # 15 Raiders
-    14: .532, # 16 Comms
-    15: .500, # 17 Bills
-    16: .611  # 18 Comms
-    }
+    1:  .474, # 2 Chiefs
+    2:  .609, # 3 Rams
+    3:  .554, # 4 Bucs
+    4:  .632, # 5 Broncos
+    5:  .679, # 6 Giants
+    6:  .544, # 7 Vikings
+    7:  .754, # 8 Giants
+    8:  .475, # 10 Packers
+    9:  .592, # 11 Lions
+    10: .567, # 12 Cowboys
+    11: .645, # 13 Bears
+    12: .499, # 14 Chargers
+    13: .695, # 15 Raiders
+    14: .507, # 16 Comms
+    15: .472, # 17 Bills
+    16: .584  # 18 Comms
+    } # ⭐️⭐️⭐️⭐️⭐️⭐️⭐️
 
 # Tally competitors' points
 
