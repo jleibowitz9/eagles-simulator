@@ -48,13 +48,13 @@ predicted_points = {
 }
 
 # Actual total points scored by the Eagles at season end
-actual_points = (24) / 1 * 17 # ⭐️⭐️⭐️⭐️⭐️⭐️⭐️
+actual_points = (44) / 2 * 17 # ⭐️⭐️⭐️⭐️⭐️⭐️⭐️
 
 # Eagles in-season performance (W for win; L for loss; A for not played yet)
 
 eagles_results = [
     'W', # 1 Cowboys
-    'A', # 2 Chiefs
+    'W', # 2 Chiefs
     'A', # 3 Rams
     'A', # 4 Bucs
     'A', # 5 Broncos
@@ -82,21 +82,21 @@ tally_total = {'amir':0, 'andy':0, 'buhduh':0, 'emer':0, 'hanan':0, 'jacob':0, '
 weight = {
     0:  .687, # 1 Cowboys
     1:  .474, # 2 Chiefs
-    2:  .609, # 3 Rams
-    3:  .554, # 4 Bucs
-    4:  .632, # 5 Broncos
-    5:  .679, # 6 Giants
-    6:  .544, # 7 Vikings
-    7:  .754, # 8 Giants
-    8:  .475, # 10 Packers
-    9:  .592, # 11 Lions
-    10: .567, # 12 Cowboys
-    11: .645, # 13 Bears
+    2:  .584, # 3 Rams
+    3:  .526, # 4 Bucs
+    4:  .594, # 5 Broncos
+    5:  .674, # 6 Giants
+    6:  .617, # 7 Vikings
+    7:  .720, # 8 Giants
+    8:  .462, # 10 Packers
+    9:  .510, # 11 Lions
+    10: .576, # 12 Cowboys
+    11: .687, # 13 Bears
     12: .499, # 14 Chargers
-    13: .695, # 15 Raiders
-    14: .507, # 16 Comms
-    15: .472, # 17 Bills
-    16: .584  # 18 Comms
+    13: .680, # 15 Raiders
+    14: .528, # 16 Comms
+    15: .453, # 17 Bills
+    16: .589  # 18 Comms
     } # ⭐️⭐️⭐️⭐️⭐️⭐️⭐️
 
 # Tally competitors' points
