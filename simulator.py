@@ -48,14 +48,14 @@ predicted_points = {
 }
 
 # Actual total points scored by the Eagles at season end
-actual_points = (44) / 2 * 17 # ⭐️⭐️⭐️⭐️⭐️⭐️⭐️
+actual_points = (24+20+33) / 3 * 17 # ⭐️⭐️⭐️⭐️⭐️⭐️⭐️
 
 # Eagles in-season performance (W for win; L for loss; A for not played yet)
 
 eagles_results = [
     'W', # 1 Cowboys
     'W', # 2 Chiefs
-    'A', # 3 Rams
+    'W', # 3 Rams
     'A', # 4 Bucs
     'A', # 5 Broncos
     'A', # 6 Giants
@@ -83,20 +83,20 @@ weight = {
     0:  .687, # 1 Cowboys
     1:  .474, # 2 Chiefs
     2:  .584, # 3 Rams
-    3:  .526, # 4 Bucs
-    4:  .594, # 5 Broncos
+    3:  .544, # 4 Bucs
+    4:  .610, # 5 Broncos
     5:  .674, # 6 Giants
-    6:  .617, # 7 Vikings
-    7:  .720, # 8 Giants
-    8:  .462, # 10 Packers
-    9:  .510, # 11 Lions
-    10: .576, # 12 Cowboys
-    11: .687, # 13 Bears
-    12: .499, # 14 Chargers
-    13: .680, # 15 Raiders
-    14: .528, # 16 Comms
-    15: .453, # 17 Bills
-    16: .589  # 18 Comms
+    6:  .572, # 7 Vikings
+    7:  .741, # 8 Giants
+    8:  .476, # 10 Packers
+    9:  .517, # 11 Lions
+    10: .596, # 12 Cowboys
+    11: .652, # 13 Bears
+    12: .483, # 14 Chargers
+    13: .699, # 15 Raiders
+    14: .516, # 16 Comms
+    15: .433, # 17 Bills
+    16: .562  # 18 Comms
     } # ⭐️⭐️⭐️⭐️⭐️⭐️⭐️
 
 # Tally competitors' points
@@ -116,6 +116,29 @@ for week in range(total_weeks):
         week_number += 1
 
 week_range = total_weeks - week_number
+
+# Probabilistic "closest to points" helper using a Normal model
+def closest_shares_normal(guesses_dict, mean, sd):
+    # guesses_dict: {name: guess_points}
+    # returns shares summing to 1.0 based on probability each guess is closest
+    import math
+    if sd <= 0:
+        sd = 1.0
+    def cdf(x):
+        return 0.5 * (1.0 + math.erf((x - mean) / (sd * (2 ** 0.5))))
+
+    names_sorted = sorted(guesses_dict.keys(), key=lambda n: guesses_dict[n])
+    shares = {n: 0.0 for n in names_sorted}
+    for i, name in enumerate(names_sorted):
+        g = guesses_dict[name]
+        left = -float('inf') if i == 0 else (guesses_dict[names_sorted[i-1]] + g) / 2.0
+        right = float('inf') if i == len(names_sorted) - 1 else (g + guesses_dict[names_sorted[i+1]]) / 2.0
+        shares[name] = max(0.0, cdf(right) - cdf(left))
+    total = sum(shares.values())
+    if total > 0:
+        for k in shares:
+            shares[k] /= total
+    return shares
 
 # Create list of all possible outcomes
 
@@ -174,18 +197,18 @@ for outcome in outcomes:
                 name for name in winners
                 if abs(predicted_division_wins[name] - actual_division_wins) == closest_div_diff
             ]
-        # FINAL TIEBREAKER: total points scored closeness
-        if len(winners) > 1:
-            closest_point_diff = min(
-                abs(predicted_points[name] - actual_points)
-                for name in winners
-            )
-            winners = [
-                name for name in winners
-                if abs(predicted_points[name] - actual_points) == closest_point_diff
-            ]
-        for winner in winners:
-            tally_total[winner] += chance * 100 / len(winners)
+        # FINAL TIEBREAKER (Probabilistic): total points "closest" as a distribution
+        # Allocate winner shares based on probability each guess ends up closest
+        weeks_remaining = total_weeks - week_number
+        sd_per_game = 11.0  # tunable
+        sd_remaining = max(1.0, sd_per_game * (weeks_remaining ** 0.5))
+        mean_points = actual_points  # current rolling estimate
+
+        guesses_subset = {w: predicted_points[w] for w in winners}
+        shares = closest_shares_normal(guesses_subset, mean_points, sd_remaining)
+
+        for w in winners:
+            tally_total[w] += chance * 100 * shares[w]
 
 print('')
 print('Weighted:')
@@ -245,18 +268,17 @@ for outcome in outcomes:
                 name for name in winners
                 if abs(predicted_division_wins[name] - actual_division_wins) == closest_div_diff
             ]
-        # FINAL TIEBREAKER: total points scored closeness
-        if len(winners) > 1:
-            closest_point_diff = min(
-                abs(predicted_points[name] - actual_points)
-                for name in winners
-            )
-            winners = [
-                name for name in winners
-                if abs(predicted_points[name] - actual_points) == closest_point_diff
-            ]
-        for winner in winners:
-            tally_total[winner] += 1 / len(winners)
+        # FINAL TIEBREAKER (Probabilistic): total points "closest" as a distribution
+        weeks_remaining = total_weeks - week_number
+        sd_per_game = 11.0  # tunable
+        sd_remaining = max(1.0, sd_per_game * (weeks_remaining ** 0.5))
+        mean_points = actual_points
+
+        guesses_subset = {w: predicted_points[w] for w in winners}
+        shares = closest_shares_normal(guesses_subset, mean_points, sd_remaining)
+
+        for w in winners:
+            tally_total[w] += shares[w]
 
 print('')
 print('Straight:')
@@ -323,6 +345,26 @@ def run_simulation(eagles_results_input, weight_input, picks_dict_input, divisio
                 chance *= (1 - weight[i])
         return chance
 
+    # Probabilistic "closest to points" helper using a Normal model
+    def closest_shares_normal(guesses_dict, mean, sd):
+        import math
+        if sd <= 0:
+            sd = 1.0
+        def cdf(x):
+            return 0.5 * (1.0 + math.erf((x - mean) / (sd * (2 ** 0.5))))
+        names_sorted = sorted(guesses_dict.keys(), key=lambda n: guesses_dict[n])
+        shares = {n: 0.0 for n in names_sorted}
+        for i, name in enumerate(names_sorted):
+            g = guesses_dict[name]
+            left = -float('inf') if i == 0 else (guesses_dict[names_sorted[i-1]] + g) / 2.0
+            right = float('inf') if i == len(names_sorted) - 1 else (g + guesses_dict[names_sorted[i+1]]) / 2.0
+            shares[name] = max(0.0, cdf(right) - cdf(left))
+        total = sum(shares.values())
+        if total > 0:
+            for k in shares:
+                shares[k] /= total
+        return shares
+
     weighted_tally = {name: 0 for name in picks_dict}
     straight_tally = {name: 0 for name in picks_dict}
 
@@ -355,15 +397,21 @@ def run_simulation(eagles_results_input, weight_input, picks_dict_input, divisio
                     )
                     div_diff = min(abs(predicted_division_wins[name] - actual_div_wins) for name in winners)
                     winners = [name for name in winners if abs(predicted_division_wins[name] - actual_div_wins) == div_diff]
-                # final points tiebreaker
-                if len(winners) > 1:
-                    point_diff = min(abs(predicted_points[name] - actual_points) for name in winners)
-                    winners = [name for name in winners if abs(predicted_points[name] - actual_points) == point_diff]
+                # FINAL TIEBREAKER (Probabilistic): total points "closest" as a distribution
+                weeks_remaining = total_weeks - week_number
+                sd_per_game = 11.0  # tunable
+                sd_remaining = max(1.0, sd_per_game * (weeks_remaining ** 0.5))
+                mean_points = actual_points
+
+                guesses_subset = {w: predicted_points[w] for w in winners}
+                shares = closest_shares_normal(guesses_subset, mean_points, sd_remaining)
+
                 for w in winners:
                     if is_weighted:
-                        weighted_tally[w] += chance * 100 / len(winners)
+                        weighted_tally[w] += chance * 100 * shares[w]
                     else:
-                        straight_tally[w] += 1 / len(winners)
+                        straight_tally[w] += shares[w]
+                return  # allocation done for this outcome
         simulate(True)
         simulate(False)
 
